@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Ore in Percentuale</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --text: #334155;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --success: #10b981;
+            --warning: #f97316;
+            --danger: #ef4444;
+            --output-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .io-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: end;
+        }
+
+        .sub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .field-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-box label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .output-field {
+            background-color: var(--output-bg);
+            border: 1px dashed var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            height: 41px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .output-field.viaggio-out {
+            color: var(--warning);
+        }
+
+        /* TOGGLE SWITCH */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .2s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .info-viaggio-testo {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid var(--muted);
+        }
+
+        .info-viaggio-testo.has-warning {
+            color: var(--warning);
+            background-color: #fff7ed;
+            border-left-color: var(--warning);
+        }
+
+        /* CONTENITORE DINAMICO AZIENDA */
+        #blocco-azienda {
+            display: block;
+        }
+
+        /* CARD USCITA ANTICIPATA */
+        .uscita-card {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .uscita-titolo {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #991b1b;
+            padding-right: 10px;
+            line-height: 1.5;
+        }
+
+        .uscita-orario {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--danger);
+            background-color: #fff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid #fca5a5;
+            white-space: nowrap;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        @media (max-width: 500px) {
+            .io-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .uscita-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .uscita-orario {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calcolo Ore in Percentuale</h1>
+
+    <div class="section-title">Ore Lavorate</div>
+    <div class="io-grid">
+        <div class="sub-grid">
+            <div class="field-box">
+                <label>Input Ore</label>
+                <input type="number" id="lav-ore" min="0" value="7" oninput="calcola()">
+            </div>
+            <div class="field-box">
+                <label>Input Minuti</label>
+                <input type="number" id="lav-min" min="0" max="59" value="30" oninput="calcola()">
+            </div>
+        </div>
+        <div class="sub-grid">
+            <div class="field-box">
+                <label>Output Ore</label>
+                <div class="output-field" id="out-lav-ore">7</div>
+            </div>
+            <div class="field-box">
+                <label>Output %</label>
+                <div class="output-field" id="out-lav-perc">50</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Viaggio (Reale Inserito)</div>
+    <div class="io-grid" style="margin-bottom: 15px;">
+        <div class="sub-grid">
+            <div class="field-box">
+                <label>Input Ore</label>
+                <input type="number" id="via-ore" min="0" value="0" oninput="calcola()">
+            </div>
+            <div class="field-box">
+                <label>Input Minuti</label>
+                <input type="number" id="via-min" min="0" max="59" value="45" oninput="calcola()">
+            </div>
+        </div>
+        <div class="sub-grid">
+            <div class="field-box">
+                <label>Output Ore</label>
+                <div class="output-field" id="out-via-ore-reale">0</div>
+            </div>
+            <div class="field-box">
+                <label>Output %</label>
+                <div class="output-field" id="out-via-perc-reale">75</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toggle-container">
+        <span class="toggle-label">Scorporo 25 min</span>
+        <label class="switch">
+            <input type="checkbox" id="toggle-scorporo" checked onchange="calcola()">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div id="blocco-azienda">
+        <div class="section-title">Viaggio Calcolato (Azienda)</div>
+        <div class="io-grid" style="margin-bottom: 15px;">
+            <div class="sub-grid">
+                <div class="field-box">
+                    <label>Ore Effettive</label>
+                    <div class="output-field viaggio-out" id="out-via-ore-effettivo">0</div>
+                </div>
+                <div class="field-box">
+                    <label>Minuti Effettivi</label>
+                    <div class="output-field viaggio-out" id="out-via-min-effettivo">20</div>
+                </div>
+            </div>
+            <div class="sub-grid">
+                <div class="field-box">
+                    <label>Ore %</label>
+                    <div class="output-field viaggio-out" id="out-via-ore-perc-effettivo">0</div>
+                </div>
+                <div class="field-box">
+                    <label>Minuti %</label>
+                    <div class="output-field viaggio-out" id="out-via-perc-effettivo">33</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-viaggio-testo" id="info-viaggio">
+            Viaggio 45 min di cui 20 pagati
+        </div>
+    </div>
+
+    <div class="section-title">Orario di Uscita Consigliato</div>
+    <div class="uscita-card">
+        <span class="uscita-titolo" id="uscita-label">Calcolo orario in corso...</span>
+        <span class="uscita-orario" id="ora-uscita">16:30</span>
+    </div>
+
+    <footer>
+        <p>Ringrazia Ntony e paga na birra</p>
+    </footer>
+</div>
+
+<script>
+function calcola() {
+    // --- 1. DATI DI INPUT (LAVORO) ---
+    const lavOre = parseInt(document.getElementById('lav-ore').value) || 0;
+    const lavMin = parseInt(document.getElementById('lav-min').value) || 0;
+
+    document.getElementById('out-lav-ore').innerText = lavOre;
+    const lavPercentuale = Math.round((lavMin / 60) * 100);
+    document.getElementById('out-lav-perc').innerText = lavPercentuale;
+
+    // --- 2. DATI DI INPUT (VIAGGIO) ---
+    const viaOre = parseInt(document.getElementById('via-ore').value) || 0;
+    const viaMin = parseInt(document.getElementById('via-min').value) || 0;
+    const scorporoAttivo = document.getElementById('toggle-scorporo').checked;
+
+    document.getElementById('out-via-ore-reale').innerText = viaOre;
+    const viaPercentualeReale = Math.round((viaMin / 60) * 100);
+    document.getElementById('out-via-perc-reale').innerText = viaPercentualeReale;
+
+    const totaleMinViaggio = (viaOre * 60) + viaMin;
+    const boxInfo = document.getElementById('info-viaggio');
+    const bloccoAzienda = document.getElementById('blocco-azienda');
+    
+    // Calcolo del tempo a carico (massimo 25 minuti fisse di franchigia)
+    let minutiCaricoDipendente = totaleMinViaggio;
+    if (totaleMinViaggio > 25) {
+        minutiCaricoDipendente = 25;
+    }
+
+    // Il tempo pagato dall'azienda è l'eccedenza oltre i 25 minuti franchigia
+    let minutiPagatiAzienda = 0;
+    if (totaleMinViaggio > 25) {
+        minutiPagatiAzienda = totaleMinViaggio - 25;
+    }
+
+    // Compilazione campi speculativi Azienda
+    const oreAziendaReali = Math.floor(minutiPagatiAzienda / 60);
+    const minAziendaReali = minutiPagatiAzienda % 60;
+    const viaPercentualeAzienda = Math.round((minAziendaReali / 60) * 100);
+
+    document.getElementById('out-via-ore-effettivo').innerText = oreAziendaReali;
+    document.getElementById('out-via-min-effettivo').innerText = minAziendaReali;
+    document.getElementById('out-via-ore-perc-effettivo').innerText = oreAziendaReali;
+    document.getElementById('out-via-perc-effettivo').innerText = viaPercentualeAzienda;
+
+    boxInfo.innerText = `Viaggio ${totaleMinViaggio} min di cui ${minutiPagatiAzienda} min pagati`;
+
+    // Gestione visibilità blocco aziendale tramite Toggle
+    if (scorporoAttivo) {
+        bloccoAzienda.style.display = "block";
+    } else {
+        bloccoAzienda.style.display = "none";
+    }
+
+    // --- 3. CALCOLO NUOVA LOGICA RICHIESTA ---
+    const MINUTI_8_ORE = 8 * 60; // 480 minuti totali di una giornata standard
+    const ORARIO_BASE_1630_MINUTI = (16 * 60) + 30; // Fine turno standard (16:30)
+
+    // Oggi dovresti lavorare = 8h - tempo viaggio pagato dall'azienda
+    const minutiDaLavorareOggi = MINUTI_8_ORE - minutiPagatiAzienda;
+    
+    const oreLavoroOggi = Math.floor(minutiDaLavorareOggi / 60);
+    const minLavoroOggi = minutiDaLavorareOggi % 60;
+    const strLavoroOggi = `${oreLavoroOggi}.${minLavoroOggi.toString().padStart(2, '0')}`;
+
+    // L'orario finale di uscita arretra esattamente dei minuti pagati dall'azienda rispetto alle 16:30
+    const nuoviMinutiUscita = ORARIO_BASE_1630_MINUTI - minutiPagatiAzienda;
+
+    // Formattazione pulita del tempo viaggio a carico dipendente (i primi 25 minuti o meno)
+    const oreCarico = Math.floor(minutiCaricoDipendente / 60);
+    const minCarico = minutiCaricoDipendente % 60;
+    let stringaTempoCarico = "";
+    if (oreCarico > 0) {
+        stringaTempoCarico += `${oreCarico} ${oreCarico === 1 ? 'ora' : 'ore'}`;
+        if (minCarico > 0) stringaTempoCarico += ` e ${minCarico} min`;
+    } else {
+        stringaTempoCarico += `${minCarico} min`;
+    }
+
+    // Composizione del testo con la doppia informazione richiesta
+    const uscitaLabel = document.getElementById('uscita-label');
+    uscitaLabel.innerHTML = `Visto che <strong>${stringaTempoCarico}</strong> di viaggio sono a carico tuo, oggi dovresti lavorare <strong>${strLavoroOggi}h</strong> complessive.<br>Pertanto dovresti andare via alle ore:`;
+
+    // --- 4. CONVERSIONE E STAMPA ORARIO FINALE (HH:MM) ---
+    const oraFinale = Math.floor((nuoviMinutiUscita / 60) % 24);
+    const minutiFinali = nuoviMinutiUscita % 60;
+
+    const strOra = oraFinale.toString().padStart(2, '0');
+    const strMin = minutiFinali.toString().padStart(2, '0');
+
+    document.getElementById('ora-uscita').innerText = `${strOra}:${strMin}`;
+}
+
+// Avvio automatico al caricamento
+calcola();
+</script>
+
+</body>
+</html>
