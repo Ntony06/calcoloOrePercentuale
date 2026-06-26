@@ -270,21 +270,21 @@
         <div class="sub-grid">
             <div class="field-box">
                 <label>Input Ore</label>
-                <input type="number" id="lav-ore" min="0" value="7" oninput="calcola()">
+                <input type="number" id="lav-ore" min="0" value="0" oninput="calcola()">
             </div>
             <div class="field-box">
                 <label>Input Minuti</label>
-                <input type="number" id="lav-min" min="0" max="59" value="30" oninput="calcola()">
+                <input type="number" id="lav-min" min="0" max="59" value="0" oninput="calcola()">
             </div>
         </div>
         <div class="sub-grid">
             <div class="field-box">
                 <label>Output Ore</label>
-                <div class="output-field" id="out-lav-ore"></div>
+                <div class="output-field" id="out-lav-ore">0</div>
             </div>
             <div class="field-box">
                 <label>Output %</label>
-                <div class="output-field" id="out-lav-perc"></div>
+                <div class="output-field" id="out-lav-perc">0</div>
             </div>
         </div>
     </div>
@@ -298,17 +298,17 @@
             </div>
             <div class="field-box">
                 <label>Input Minuti</label>
-                <input type="number" id="via-min" min="0" max="59" value="45" oninput="calcola()">
+                <input type="number" id="via-min" min="0" max="59" value="0" oninput="calcola()">
             </div>
         </div>
         <div class="sub-grid">
             <div class="field-box">
                 <label>Output Ore</label>
-                <div class="output-field" id="out-via-ore-reale"></div>
+                <div class="output-field" id="out-via-ore-reale">0</div>
             </div>
             <div class="field-box">
                 <label>Output %</label>
-                <div class="output-field" id="out-via-perc-reale"></div>
+                <div class="output-field" id="out-via-perc-reale">0</div>
             </div>
         </div>
     </div>
@@ -327,27 +327,26 @@
             <div class="sub-grid">
                 <div class="field-box">
                     <label>Ore Effettive</label>
-                    <div class="output-field viaggio-out" id="out-via-ore-effettivo"></div>
+                    <div class="output-field viaggio-out" id="out-via-ore-effettivo">0</div>
                 </div>
                 <div class="field-box">
                     <label>Minuti Effettivi</label>
-                    <div class="output-field viaggio-out" id="out-via-min-effettivo"></div>
+                    <div class="output-field viaggio-out" id="out-via-min-effettivo">20</div>
                 </div>
             </div>
             <div class="sub-grid">
                 <div class="field-box">
-                    <label>Ore</label>
-                    <div class="output-field viaggio-out" id="out-via-ore-perc-effettivo"></div>
+                    <label>Output Ore</label>
+                    <div class="output-field viaggio-out" id="out-via-ore-perc-effettivo">0</div>
                 </div>
                 <div class="field-box">
                     <label>Minuti %</label>
-                    <div class="output-field viaggio-out" id="out-via-perc-effettivo"></div>
+                    <div class="output-field viaggio-out" id="out-via-perc-effettivo">33</div>
                 </div>
             </div>
         </div>
 
         <div class="info-viaggio-testo" id="info-viaggio">
-            
         </div>
     </div>
 
@@ -358,7 +357,7 @@
     </div>
 
     <footer>
-        <p>Ringrazia Ntony e paga na birra</p>
+        <p>Ringrazia Ntony e paga la birra</p>
     </footer>
 </div>
 
@@ -371,6 +370,8 @@ function calcola() {
     document.getElementById('out-lav-ore').innerText = lavOre;
     const lavPercentuale = Math.round((lavMin / 60) * 100);
     document.getElementById('out-lav-perc').innerText = lavPercentuale;
+
+    const totaleMinLavoro = (lavOre * 60) + lavMin;
 
     // --- 2. DATI DI INPUT (VIAGGIO) ---
     const viaOre = parseInt(document.getElementById('via-ore').value) || 0;
@@ -385,21 +386,15 @@ function calcola() {
     const boxInfo = document.getElementById('info-viaggio');
     const bloccoAzienda = document.getElementById('blocco-azienda');
     
-    // Calcolo del tempo a carico (massimo 25 minuti fisse di franchigia)
-    let minutiCaricoDipendente = totaleMinViaggio;
+    // Calcolo minuti eccedenti la franchigia dei 25 min (Tempo pagato dall'azienda)
+    let minutiEccedentiViaggio = 0;
     if (totaleMinViaggio > 25) {
-        minutiCaricoDipendente = 25;
-    }
-
-    // Il tempo pagato dall'azienda è l'eccedenza oltre i 25 minuti franchigia
-    let minutiPagatiAzienda = 0;
-    if (totaleMinViaggio > 25) {
-        minutiPagatiAzienda = totaleMinViaggio - 25;
+        minutiEccedentiViaggio = totaleMinViaggio - 25;
     }
 
     // Compilazione campi speculativi Azienda
-    const oreAziendaReali = Math.floor(minutiPagatiAzienda / 60);
-    const minAziendaReali = minutiPagatiAzienda % 60;
+    const oreAziendaReali = Math.floor(minutiEccedentiViaggio / 60);
+    const minAziendaReali = minutiEccedentiViaggio % 60;
     const viaPercentualeAzienda = Math.round((minAziendaReali / 60) * 100);
 
     document.getElementById('out-via-ore-effettivo').innerText = oreAziendaReali;
@@ -407,7 +402,7 @@ function calcola() {
     document.getElementById('out-via-ore-perc-effettivo').innerText = oreAziendaReali;
     document.getElementById('out-via-perc-effettivo').innerText = viaPercentualeAzienda;
 
-    boxInfo.innerText = `Viaggio ${totaleMinViaggio} min di cui ${minutiPagatiAzienda} min pagati`;
+    boxInfo.innerText = `Viaggio ${totaleMinViaggio} min di cui ${minutiEccedentiViaggio} min pagati`;
 
     // Gestione visibilità blocco aziendale tramite Toggle
     if (scorporoAttivo) {
@@ -416,41 +411,47 @@ function calcola() {
         bloccoAzienda.style.display = "none";
     }
 
-    // --- 3. CALCOLO NUOVA LOGICA RICHIESTA ---
-    const MINUTI_8_ORE = 8 * 60; // 480 minuti totali di una giornata standard
-    const ORARIO_BASE_1630_MINUTI = (16 * 60) + 30; // Fine turno standard (16:30)
+    // --- 3. LOGICA MATEMATICA ORARIO USCITA DI PRIMA ---
+    const MINUTI_8_ORE = 8 * 60; 
+    const ORARIO_BASE_1630_MINUTI = (16 * 60) + 30; 
 
-    // Oggi dovresti lavorare = 8h - tempo viaggio pagato dall'azienda
-    const minutiDaLavorareOggi = MINUTI_8_ORE - minutiPagatiAzienda;
-    
+    const minutiMancantiAlle8Ore = MINUTI_8_ORE - totaleMinLavoro - minutiEccedentiViaggio;
+
+    let nuoviMinutiUscita = ORARIO_BASE_1630_MINUTI;
+    const uscitaLabel = document.getElementById('uscita-label');
+
+    // Calcolo ore totali da lavorare oggi (8h - viaggio pagato)
+    const minutiDaLavorareOggi = MINUTI_8_ORE - minutiEccedentiViaggio;
     const oreLavoroOggi = Math.floor(minutiDaLavorareOggi / 60);
     const minLavoroOggi = minutiDaLavorareOggi % 60;
     const strLavoroOggi = `${oreLavoroOggi}.${minLavoroOggi.toString().padStart(2, '0')}`;
 
-    // L'orario finale di uscita arretra esattamente dei minuti pagati dall'azienda rispetto alle 16:30
-    const nuoviMinutiUscita = ORARIO_BASE_1630_MINUTI - minutiPagatiAzienda;
-
-    // Formattazione pulita del tempo viaggio a carico dipendente (i primi 25 minuti o meno)
-    const oreCarico = Math.floor(minutiCaricoDipendente / 60);
-    const minCarico = minutiCaricoDipendente % 60;
-    let stringaTempoCarico = "";
-    if (oreCarico > 0) {
-        stringaTempoCarico += `${oreCarico} ${oreCarico === 1 ? 'ora' : 'ore'}`;
-        if (minCarico > 0) stringaTempoCarico += ` e ${minCarico} min`;
+    // Formattazione dinamica pulita dei soli minuti di viaggio PAGATI
+    let stringaTempoPagato = "";
+    if (oreAziendaReali > 0) {
+        stringaTempoPagato += `${oreAziendaReali} ${oreAziendaReali === 1 ? 'ora' : 'ore'}`;
+        if (minAziendaReali > 0) stringaTempoPagato += ` e ${minAziendaReali} min`;
     } else {
-        stringaTempoCarico += `${minCarico} min`;
+        stringaTempoPagato += `${minutiEccedentiViaggio} min`;
     }
 
-    // Composizione del testo con la doppia informazione richiesta
-    const uscitaLabel = document.getElementById('uscita-label');
-    uscitaLabel.innerHTML = `Visto che <strong>${stringaTempoCarico}</strong> di viaggio sono a carico tuo, oggi dovresti lavorare <strong>${strLavoroOggi}h</strong> complessive.<br>Pertanto dovresti andare via alle ore:`;
+    if (minutiMancantiAlle8Ore <= 0) {
+        const anticipoUscita = Math.abs(minutiMancantiAlle8Ore) + minutiEccedentiViaggio;
+        nuoviMinutiUscita = ORARIO_BASE_1630_MINUTI - anticipoUscita;
 
-    // --- 4. CONVERSIONE E STAMPA ORARIO FINALE (HH:MM) ---
+        uscitaLabel.innerHTML = `Visto che <strong>${stringaTempoPagato}</strong> di viaggio sono a carico tuo, oggi dovresti lavorare <strong>${strLavoroOggi}h</strong> complessive.<br>Pertanto dovresti andare via alle ore:`;
+    } else {
+        nuoviMinutiUscita = ORARIO_BASE_1630_MINUTI - (MINUTI_8_ORE - totaleMinLavoro - minutiMancantiAlle8Ore);
+
+        uscitaLabel.innerHTML = `Visto che <strong>${stringaTempoPagato}</strong> di viaggio sono a carico tuo, oggi dovresti lavorare <strong>${strLavoroOggi}h</strong> complessive.<br>Pertanto dovresti andare via alle ore:`;
+    }
+
+    // --- 4. CONVERSIONE E STAMPA IN HH:MM ---
     const oraFinale = Math.floor((nuoviMinutiUscita / 60) % 24);
-    const minutiFinali = nuoviMinutiUscita % 60;
+    const minutesFinali = nuoviMinutiUscita % 60;
 
     const strOra = oraFinale.toString().padStart(2, '0');
-    const strMin = minutiFinali.toString().padStart(2, '0');
+    const strMin = minutesFinali.toString().padStart(2, '0');
 
     document.getElementById('ora-uscita').innerText = `${strOra}:${strMin}`;
 }
